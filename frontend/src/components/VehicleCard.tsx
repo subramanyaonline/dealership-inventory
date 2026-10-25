@@ -50,19 +50,19 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition flex flex-col justify-between p-5">
+    <div className="vehicle-card bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl transition flex flex-col justify-between p-5">
       <div>
         <div className="flex items-start justify-between gap-2 mb-2">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
+            <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100">
               {vehicle.category}
             </span>
-            <h3 className="text-lg font-bold text-gray-900 mt-1">
+            <h3 className="text-xl font-black text-slate-900 mt-2 leading-snug">
               {vehicle.make} {vehicle.model}
             </h3>
           </div>
           <span
-            className={`text-xs font-medium px-2.5 py-1 rounded-full ${
+            className={`stock-pill text-[10px] font-bold uppercase tracking-[0.12em] px-2.5 py-1.5 rounded-full ${
               isOutOfStock
                 ? 'bg-red-100 text-red-700'
                 : vehicle.quantity < 3
@@ -74,23 +74,23 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
           </span>
         </div>
 
-        <p className="text-2xl font-extrabold text-gray-900 mt-3">
+        <p className="text-3xl font-black text-slate-900 mt-4 tracking-tight">
           ${vehicle.price.toLocaleString()}
         </p>
       </div>
 
-      <div className="mt-5 pt-4 border-t border-gray-100 flex flex-col gap-2">
+      <div className="mt-5 pt-4 border-t border-slate-100 flex flex-col gap-2">
         <button
           onClick={handlePurchase}
           disabled={isOutOfStock || busy}
-          className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg transition"
+          className="vehicle-purchase-button w-full flex items-center justify-center gap-2 py-2.5 px-4 text-white text-sm font-semibold rounded-xl transition"
         >
           <ShoppingCart size={16} />
           {isOutOfStock ? 'Sold Out' : 'Purchase'}
         </button>
 
         {user?.role === 'ADMIN' && (
-          <div className="pt-2 border-t border-dashed border-gray-200 flex flex-col gap-2">
+          <div className="vehicle-admin-actions pt-2 border-t border-dashed border-slate-200 flex flex-col gap-2">
             {showRestockInput ? (
               <div className="flex items-center gap-2">
                 <input
@@ -98,18 +98,18 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
                   min="1"
                   value={restockAmount}
                   onChange={(e) => setRestockAmount(Math.max(1, parseInt(e.target.value) || 1))}
-                  className="w-20 px-2 py-1 text-sm border border-gray-300 rounded"
+                  className="vehicle-restock-input w-20 px-2 py-1.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                 />
                 <button
                   onClick={handleRestock}
                   disabled={busy}
-                  className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded"
+                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg"
                 >
                   Save
                 </button>
                 <button
                   onClick={() => setShowRestockInput(false)}
-                  className="px-2 py-1 text-gray-500 hover:text-gray-700 text-xs"
+                  className="px-2 py-1.5 text-slate-500 hover:text-slate-700 text-xs font-medium"
                 >
                   Cancel
                 </button>
@@ -118,7 +118,7 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
               <div className="flex items-center justify-between text-xs">
                 <button
                   onClick={() => setShowRestockInput(true)}
-                  className="flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium"
+                  className="flex items-center gap-1.5 text-blue-600 hover:text-blue-800 font-semibold"
                 >
                   <PlusCircle size={14} />
                   Restock
@@ -126,7 +126,7 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
                 <button
                   onClick={() => onDelete(vehicle.id)}
                   disabled={busy}
-                  className="flex items-center gap-1 text-red-500 hover:text-red-700 font-medium"
+                  className="flex items-center gap-1.5 text-red-500 hover:text-red-700 font-semibold"
                 >
                   <Trash2 size={14} />
                   Delete
