@@ -5,7 +5,12 @@ import vehicleRoutes from './routes/vehicle.routes';
 
 const app: Application = express();
 
-app.use(cors());
+const allowedOrigins = process.env.CORS_ORIGIN
+  ?.split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.use(cors({ origin: allowedOrigins?.length ? allowedOrigins : true }));
 app.use(express.json());
 
 app.get('/health', (_req: Request, res: Response) => {

@@ -155,6 +155,59 @@ npm run dev
 
 The application will be live at `http://localhost:5173`.
 
+---
+
+## Deployment: Vercel + Railway
+
+The frontend can be hosted on Vercel, with the Express API and MySQL database hosted on Railway. Deployments use the `main` branch, so push the desired changes to GitHub before connecting the services.
+
+### 1. Deploy the MySQL Database and API on Railway
+
+1. Create a Railway project from this GitHub repository and add a MySQL database.
+2. Create a service for the repository and set its **Root Directory** to `backend`.
+3. Configure the service to build with `npm run build` and start with `npm start`.
+4. Add these variables to the backend service. Use Railway's variable references for the MySQL service values:
+
+   | Variable | Value |
+   |---|---|
+   | `NODE_ENV` | `production` |
+   | `DB_HOST` | MySQL service host |
+   | `DB_PORT` | MySQL service port |
+   | `DB_USER` | MySQL service username |
+   | `DB_PASSWORD` | MySQL service password |
+   | `DB_NAME` | MySQL service database name |
+   | `JWT_SECRET` | A newly generated, private secret |
+
+5. Connect to the Railway MySQL database and run the table-creation SQL from **Database Setup** above. Do not run `CREATE DATABASE` there; Railway provisions the database for you.
+6. Generate a public domain for the backend service. Confirm the API is running by opening `https://<backend-domain>/health`; it should return `{"status":"ok"}`.
+
+### 2. Deploy the Frontend on Vercel
+
+1. Import the same GitHub repository into Vercel.
+2. Set the project **Root Directory** to `frontend` and use the `Vite` framework preset.
+3. Add this environment variable, replacing the URL with your Railway backend domain:
+
+   ```env
+   VITE_API_URL=https://<backend-domain>/api
+   ```
+
+4. Deploy the project and copy its public Vercel URL.
+5. In Railway, set the backend service's `CORS_ORIGIN` variable to that exact Vercel origin (for example, `https://your-project.vercel.app`, with no trailing slash), then redeploy the backend.
+
+### 3. Initialize Inventory and Admin Access
+
+- Register a customer account through the deployed site.
+- To grant that account admin privileges, run this query against the Railway database, replacing the email with your account's email:
+
+  ```sql
+  UPDATE users SET role = 'ADMIN' WHERE email = 'your-admin-email@example.com';
+  ```
+
+- Log out and back in to refresh the account's role in its authentication token.
+- The backend seed script deletes existing vehicle rows before inserting demo inventory. Only run `npm run seed` against a dedicated, empty database whose vehicle data can be safely replaced.
+
+Keep database credentials and JWT secrets in Railway's private environment variables. Never commit production secrets or put them in Vercel's `VITE_*` variables.
+
 ### Pre-Configured Test Credentials
 
 After running `npm run seed`, the following testing accounts are immediately available:
