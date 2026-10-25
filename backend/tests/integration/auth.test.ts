@@ -70,4 +70,55 @@ describe('Auth Endpoints', () => {
       expect(response.body).toHaveProperty('error');
     });
   });
+
+  describe('POST /api/auth/login', () => {
+    beforeEach(async () => {
+      // Seed a customer user for testing login
+      await request(app)
+        .post('/api/auth/register')
+        .send({
+          email: 'subramanya@dealership.com',
+          password: 'Password123!',
+        });
+    });
+
+    it('should login successfully with valid credentials and return a JWT', async () => {
+      const response = await request(app)
+        .post('/api/auth/login')
+        .send({
+          email: 'subramanya@dealership.com',
+          password: 'Password123!',
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('token');
+      expect(response.body.user).toHaveProperty('id');
+      expect(response.body.user.email).toBe('subramanya@dealership.com');
+      expect(response.body.user.role).toBe('CUSTOMER');
+    });
+
+    it('should return 401 for incorrect password', async () => {
+      const response = await request(app)
+        .post('/api/auth/login')
+        .send({
+          email: 'subramanya@dealership.com',
+          password: 'WrongPassword!',
+        });
+
+      expect(response.status).toBe(401);
+      expect(response.body).toHaveProperty('error', 'Invalid email or password');
+    });
+
+    it('should return 401 for non-existent email', async () => {
+      const response = await request(app)
+        .post('/api/auth/login')
+        .send({
+          email: 'ghost@dealership.com',
+          password: 'Password123!',
+        });
+
+      expect(response.status).toBe(401);
+      expect(response.body).toHaveProperty('error', 'Invalid email or password');
+    });
+  });
 });
