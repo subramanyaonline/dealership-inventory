@@ -32,12 +32,9 @@ The system implements Role-Based Access Control (RBAC), atomic transactional inv
 
 ## Screenshots
 
-- **Showroom Catalog & Live Search:** `docs/screenshots/catalog-view.png`
-  *(Public vehicle catalog displaying stock badges and dynamic category filtering.)*
-- **Role-Based Admin Controls:** `docs/screenshots/admin-dashboard.png`
-  *(Authenticated Admin session displaying vehicle creation modal, restock operations, and deletion privileges.)*
-- **Customer Authentication & Checkout:** `docs/screenshots/auth-modal.png`
-  *(JWT-backed authentication modal handling registration, login, and instant stock deduction upon purchase.)*
+### Showroom Inventory
+
+![Dealership vehicle inventory](docs/screenshots/catalog-view.png)
 
 ---
 
