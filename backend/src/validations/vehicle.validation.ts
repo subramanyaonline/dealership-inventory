@@ -9,3 +9,7 @@ export const createVehicleSchema = z.object({
 });
 
 export const updateVehicleSchema = createVehicleSchema.partial();
+
+export const restockSchema = z.object({
+  amount: z.number().int().positive('Restock amount must be a positive integer'),
+});

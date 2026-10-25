@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { ResultSetHeader, RowDataPacket } from 'mysql2';
 import { pool } from '../config/db';
-import { createVehicleSchema, updateVehicleSchema } from '../validations/vehicle.validation';
+import { createVehicleSchema, updateVehicleSchema , restockSchema } from '../validations/vehicle.validation';
 
 // POST /api/vehicles (Admin Only)
 export const createVehicle = async (req: Request, res: Response): Promise<void> => {
@@ -130,6 +130,92 @@ export const deleteVehicle = async (req: Request, res: Response): Promise<void> 
     res.status(200).json({ message: 'Vehicle deleted successfully' });
   } catch (error) {
     console.error('Delete vehicle error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// POST /api/vehicles/:id/purchase
+export const purchaseVehicle = async (req: Request, res: Response): Promise<void> => {
+  const id = Number(req.params.id);
+
+  try {
+    // Check existence first
+    const [vehicles] = await pool.query<RowDataPacket[]>(
+      'SELECT id, quantity FROM vehicles WHERE id = ?',
+      [id]
+    );
+
+    if (vehicles.length === 0) {
+      res.status(404).json({ error: 'Vehicle not found' });
+      return;
+    }
+
+    if (vehicles[0].quantity <= 0) {
+      res.status(400).json({ error: 'Vehicle is out of stock' });
+      return;
+    }
+
+    // Atomic decrement
+    const [result] = await pool.query<ResultSetHeader>(
+      'UPDATE vehicles SET quantity = quantity - 1 WHERE id = ? AND quantity > 0',
+      [id]
+    );
+
+    if (result.affectedRows === 0) {
+      res.status(400).json({ error: 'Vehicle is out of stock' });
+      return;
+    }
+
+    const [updated] = await pool.query<RowDataPacket[]>(
+      'SELECT quantity FROM vehicles WHERE id = ?',
+      [id]
+    );
+
+    res.status(200).json({
+      message: 'Purchase successful',
+      remainingQuantity: updated[0].quantity,
+    });
+  } catch (error) {
+    console.error('Purchase error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// POST /api/vehicles/:id/restock (Admin Only)
+export const restockVehicle = async (req: Request, res: Response): Promise<void> => {
+  const id = Number(req.params.id);
+  const parseResult = restockSchema.safeParse(req.body);
+
+  if (!parseResult.success) {
+    const errorMsg = parseResult.error.issues?.[0]?.message || 'Validation failed';
+    res.status(400).json({ error: errorMsg });
+    return;
+  }
+
+  const { amount } = parseResult.data;
+
+  try {
+    const [result] = await pool.query<ResultSetHeader>(
+      'UPDATE vehicles SET quantity = quantity + ? WHERE id = ?',
+      [amount, id]
+    );
+
+    if (result.affectedRows === 0) {
+      res.status(404).json({ error: 'Vehicle not found' });
+      return;
+    }
+
+    const [updated] = await pool.query<RowDataPacket[]>(
+      'SELECT quantity FROM vehicles WHERE id = ?',
+      [id]
+    );
+
+    res.status(200).json({
+      message: 'Vehicle restocked successfully',
+      newQuantity: updated[0].quantity,
+    });
+  } catch (error) {
+    console.error('Restock error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
