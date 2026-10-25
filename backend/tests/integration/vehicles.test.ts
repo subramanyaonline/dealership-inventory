@@ -93,10 +93,11 @@ describe('Vehicles Endpoints', () => {
       expect(response.body[0].model).toBe('Model 3');
     });
 
-    it('should return 401 when no token is provided', async () => {
-      const response = await request(app).get('/api/vehicles');
-      expect(response.status).toBe(401);
-    });
+    it('should allow unauthenticated users to view vehicles', async () => {
+  const response = await request(app).get('/api/vehicles');
+  expect(response.status).toBe(200);
+  expect(Array.isArray(response.body)).toBe(true);
+});
   });
 
   describe('GET /api/vehicles/search', () => {

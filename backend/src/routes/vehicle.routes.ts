@@ -8,26 +8,21 @@ import {
   purchaseVehicle,
   restockVehicle,
 } from '../controllers/vehicle.controller';
-
 import { authenticate, requireRole } from '../middlewares/auth.middleware';
 
 const router = Router();
 
-// Protected: All authenticated users
-router.use(authenticate);
-
+// Public: Anyone can view and search inventory
 router.get('/', getVehicles);
 router.get('/search', searchVehicles);
 
+// Protected: Requires authentication
+router.post('/:id/purchase', authenticate, purchaseVehicle);
+
 // Protected: Admin only
-router.post('/', requireRole('ADMIN'), createVehicle);
-router.put('/:id', requireRole('ADMIN'), updateVehicle);
-router.delete('/:id', requireRole('ADMIN'), deleteVehicle);
-
-// Customer & Admin: Purchase
-router.post('/:id/purchase', purchaseVehicle);
-
-// Admin Only: Restock
-router.post('/:id/restock', requireRole('ADMIN'), restockVehicle);
+router.post('/', authenticate, requireRole('ADMIN'), createVehicle);
+router.put('/:id', authenticate, requireRole('ADMIN'), updateVehicle);
+router.delete('/:id', authenticate, requireRole('ADMIN'), deleteVehicle);
+router.post('/:id/restock', authenticate, requireRole('ADMIN'), restockVehicle);
 
 export default router;

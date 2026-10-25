@@ -1,4 +1,4 @@
-import { User, Vehicle } from './types';
+import type { User, Vehicle, CreateVehicleInput, UpdateVehicleInput } from './types';
 
 const BASE_URL = 'http://localhost:5000/api';
 
@@ -23,22 +23,6 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
   }
 
   return data as T;
-}
-
-export interface CreateVehicleInput {
-  make: string;
-  model: string;
-  category: string;
-  price: number;
-  quantity: number;
-}
-
-export interface UpdateVehicleInput {
-  make?: string;
-  model?: string;
-  category?: string;
-  price?: number;
-  quantity?: number;
 }
 
 export const api = {
